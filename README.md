@@ -1,6 +1,6 @@
-## aws-demo
+## aws-fullstack-demo
 
-A full-stack hello world app deployed on AWS, provisioned with Terraform. Built as a hands-on learning project to understand how AWS services fit together.
+Just a basic full-stack hello world app deployed on AWS and provisioned with Terraform.
 
 #### Architecture
 
