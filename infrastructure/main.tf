@@ -124,3 +124,19 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
+resource "aws_lambda_function" "backend" {
+  filename         = "lambda.zip"
+  function_name    = "aws-demo-backend"
+  role             = aws_iam_role.lambda_exec.arn
+  handler          = "dist/lambda.handler"
+  runtime          = "nodejs20.x"
+  source_code_hash = filebase64sha256("lambda.zip")
+
+  memory_size = 256
+  timeout     = 10
+
+  tags = {
+    Project = "aws-demo-project"
+  }
+}
