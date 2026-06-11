@@ -140,3 +140,43 @@ resource "aws_lambda_function" "backend" {
     Project = "aws-demo-project"
   }
 }
+
+resource "aws_apigatewayv2_api" "backend" {
+  name          = "aws-demo-api"
+  protocol_type = "HTTP"
+
+  tags = {
+    Project = "aws-demo-project"
+  }
+}
+
+resource "aws_apigatewayv2_integration" "backend" {
+  api_id             = aws_apigatewayv2_api.backend.id
+  integration_type   = "AWS_PROXY"
+  integration_uri    = aws_lambda_function.backend.invoke_arn
+  integration_method = "POST"
+}
+
+resource "aws_apigatewayv2_route" "backend" {
+  api_id    = aws_apigatewayv2_api.backend.id
+  route_key = "GET /"
+  target    = "integrations/${aws_apigatewayv2_integration.backend.id}"
+}
+
+resource "aws_apigatewayv2_stage" "backend" {
+  api_id      = aws_apigatewayv2_api.backend.id
+  name        = "$default"
+  auto_deploy = true
+
+  tags = {
+    Project = "aws-demo-project"
+  }
+}
+
+resource "aws_lambda_permission" "api_gateway" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.backend.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
