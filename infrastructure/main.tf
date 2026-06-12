@@ -159,7 +159,7 @@ resource "aws_apigatewayv2_integration" "backend" {
 
 resource "aws_apigatewayv2_route" "backend" {
   api_id    = aws_apigatewayv2_api.backend.id
-  route_key = "GET /"
+  route_key = "$default"
   target    = "integrations/${aws_apigatewayv2_integration.backend.id}"
 }
 
