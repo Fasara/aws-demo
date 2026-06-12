@@ -180,3 +180,18 @@ resource "aws_lambda_permission" "api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
 }
+
+resource "aws_dynamodb_table" "todos" {
+  name         = "todos"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  tags = {
+    Project = "aws-demo-project"
+  }
+}
