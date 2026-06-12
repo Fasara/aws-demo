@@ -157,10 +157,19 @@ resource "aws_apigatewayv2_integration" "backend" {
   integration_method = "POST"
 }
 
-resource "aws_apigatewayv2_route" "backend" {
+resource "aws_apigatewayv2_route" "get_todos" {
   api_id    = aws_apigatewayv2_api.backend.id
-  route_key = "$default"
+  route_key = "GET /todos"
   target    = "integrations/${aws_apigatewayv2_integration.backend.id}"
+}
+
+
+resource "aws_apigatewayv2_route" "post_todos" {
+  api_id    = aws_apigatewayv2_api.backend.id
+  route_key = "POST /todos"
+  target    = "integrations/${aws_apigatewayv2_integration.backend.id}"
+	authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }
 
 resource "aws_apigatewayv2_stage" "backend" {
@@ -248,4 +257,16 @@ resource "aws_cognito_user_pool_client" "main" {
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
+}
+
+resource "aws_apigatewayv2_authorizer" "cognito" {
+  api_id           = aws_apigatewayv2_api.backend.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-authorizer"
+
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.main.id]
+    issuer   = "https://cognito-idp.eu-west-2.amazonaws.com/${aws_cognito_user_pool.main.id}"
+  }
 }
