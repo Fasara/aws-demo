@@ -1,16 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { configure as serverlessExpress } from '@vendia/serverless-express';
+import serverlessExpress from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
 
 let server: Handler;
 
-async function bootstrap() {
+async function bootstrap(): Promise<Handler> {
+  if (server) {
+    return server;
+  }
   const app = await NestFactory.create(AppModule);
   await app.init();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const expressApp = app.getHttpAdapter().getInstance();
-  server = serverlessExpress({ app: expressApp });
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment
+  return serverlessExpress({ app: expressApp });
 }
 
 export const handler: Handler = async (
