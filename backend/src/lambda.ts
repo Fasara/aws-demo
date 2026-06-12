@@ -11,6 +11,7 @@ async function bootstrap(): Promise<Handler> {
     return server;
   }
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   await app.init();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const expressApp = app.getHttpAdapter().getInstance();
