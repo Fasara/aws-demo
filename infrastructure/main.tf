@@ -195,3 +195,29 @@ resource "aws_dynamodb_table" "todos" {
     Project = "aws-demo-project"
   }
 }
+
+resource "aws_iam_policy" "lambda_dynamodb" {
+  name = "aws-demo-lambda-dynamodb-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Scan",
+          "dynamodb:Query"
+        ]
+        Resource = aws_dynamodb_table.todos.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_dynamodb" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = aws_iam_policy.lambda_dynamodb.arn
+}
