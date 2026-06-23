@@ -28,3 +28,25 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
     Project = "aws-demo-project"
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
+  alarm_name          = "aws-demo-backend-duration"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "Duration"
+  namespace           = "AWS/Lambda"
+  period              = 300
+  statistic           = "Maximum"
+  threshold           = 8000
+
+  dimensions = {
+    FunctionName = "aws-demo-backend"
+  }
+
+  alarm_description  = "Triggers when Lambda duration approaches the 10s timeout (80% threshold)"
+  treat_missing_data = "notBreaching"
+
+  tags = {
+    Project = "aws-demo-project"
+  }
+}
