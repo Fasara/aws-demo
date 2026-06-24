@@ -130,7 +130,7 @@ resource "aws_lambda_function" "backend" {
   function_name    = "aws-demo-backend"
   role             = aws_iam_role.lambda_exec.arn
   handler          = "dist/lambda.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   source_code_hash = filebase64sha256("lambda.zip")
 
   memory_size = 256
