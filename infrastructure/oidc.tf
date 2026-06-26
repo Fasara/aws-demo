@@ -25,8 +25,10 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:Fasara/aws-demo:ref:refs/heads/main",
-            "token.actions.githubusercontent.com:sub" = "repo:Fasara/aws-demo:ref:refs/pull/*"
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:Fasara/aws-demo:ref:refs/heads/main",
+              "repo:Fasara/aws-demo:pull_request"
+            ]
           }
         }
       }
