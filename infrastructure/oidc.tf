@@ -176,6 +176,20 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-demo-lambda-role",
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/aws-demo-lambda-dynamodb-policy"
         ]
+      },
+      {
+        Sid    = "IamOidcAndGithubActionsRoleManagement"
+        Effect = "Allow"
+        Action = [
+          "iam:GetOpenIDConnectProvider", "iam:CreateOpenIDConnectProvider", "iam:UpdateOpenIDConnectProviderThumbprint",
+          "iam:DeleteOpenIDConnectProvider", "iam:TagOpenIDConnectProvider", "iam:ListOpenIDConnectProviderTags",
+          "iam:GetRole", "iam:UpdateAssumeRolePolicy", "iam:GetRolePolicy", "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy", "iam:ListRolePolicies", "iam:TagRole"
+        ]
+        Resource = [
+          aws_iam_openid_connect_provider.github_actions.arn,
+          aws_iam_role.github_actions.arn
+        ]
       }
     ]
   })
