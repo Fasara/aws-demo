@@ -41,5 +41,3 @@ jobs:
         working-directory: frontend
         run: aws s3 sync dist/ s3://my-aws-demo-frontend --delete
 				
-
-				
