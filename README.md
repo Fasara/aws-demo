@@ -54,5 +54,5 @@ terraform apply
 - [x] DynamoDB table + Lambda IAM policy
 - [x] Cognito user pool + API Gateway authorizer
 - [ ] CloudWatch alarms for Lambda error rate and duration
-- [ ] Remote Terraform state (S3 + DynamoDB)
+- [x] Remote Terraform state (S3 + DynamoDB)
 - [ ] GitHub Actions CI/CD with AWS OIDC auth
