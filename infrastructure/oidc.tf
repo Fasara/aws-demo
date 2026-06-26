@@ -142,7 +142,8 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Action = [
           "cognito-idp:CreateUserPool", "cognito-idp:DescribeUserPool", "cognito-idp:UpdateUserPool",
           "cognito-idp:DeleteUserPool", "cognito-idp:CreateUserPoolClient", "cognito-idp:DescribeUserPoolClient",
-          "cognito-idp:UpdateUserPoolClient", "cognito-idp:DeleteUserPoolClient", "cognito-idp:TagResource"
+          "cognito-idp:UpdateUserPoolClient", "cognito-idp:DeleteUserPoolClient", "cognito-idp:TagResource",
+          "cognito-idp:GetUserPoolMfaConfig", "cognito-idp:ListTagsForResource"
         ]
         Resource = aws_cognito_user_pool.main.arn
       },
