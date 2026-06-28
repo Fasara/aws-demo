@@ -25,7 +25,10 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:Fasara/aws-demo:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:Fasara/aws-demo:ref:refs/heads/main",
+              "repo:Fasara/aws-demo:pull_request"
+            ]
           }
         }
       }
@@ -94,7 +97,10 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
           "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketPolicy", "s3:PutBucketPolicy",
           "s3:DeleteBucketPolicy", "s3:GetBucketPublicAccessBlock", "s3:PutBucketPublicAccessBlock",
           "s3:GetBucketTagging", "s3:PutBucketTagging", "s3:GetBucketVersioning",
-          "s3:GetBucketAcl", "s3:GetEncryptionConfiguration", "s3:GetBucketLocation"
+          "s3:GetBucketAcl", "s3:GetEncryptionConfiguration", "s3:GetBucketLocation", 
+          "s3:GetBucketCORS", "s3:GetBucketWebsite", "s3:GetAccelerateConfiguration",
+          "s3:GetBucketLogging", "s3:GetBucketRequestPayment", "s3:GetReplicationConfiguration",
+          "s3:GetLifecycleConfiguration", "s3:GetBucketObjectLockConfiguration", "s3:GetBucketNotification"
         ]
         Resource = aws_s3_bucket.frontend.arn
       },
@@ -116,7 +122,8 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Action = [
           "lambda:CreateFunction", "lambda:GetFunction", "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration", "lambda:DeleteFunction", "lambda:AddPermission",
-          "lambda:RemovePermission", "lambda:GetPolicy", "lambda:TagResource", "lambda:ListVersionsByFunction"
+          "lambda:RemovePermission", "lambda:GetPolicy", "lambda:TagResource", "lambda:ListVersionsByFunction",
+          "lambda:GetFunctionCodeSigningConfig"
         ]
         Resource = aws_lambda_function.backend.arn
       },
@@ -142,7 +149,8 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Action = [
           "cognito-idp:CreateUserPool", "cognito-idp:DescribeUserPool", "cognito-idp:UpdateUserPool",
           "cognito-idp:DeleteUserPool", "cognito-idp:CreateUserPoolClient", "cognito-idp:DescribeUserPoolClient",
-          "cognito-idp:UpdateUserPoolClient", "cognito-idp:DeleteUserPoolClient", "cognito-idp:TagResource"
+          "cognito-idp:UpdateUserPoolClient", "cognito-idp:DeleteUserPoolClient", "cognito-idp:TagResource",
+          "cognito-idp:GetUserPoolMfaConfig", "cognito-idp:ListTagsForResource"
         ]
         Resource = aws_cognito_user_pool.main.arn
       },
@@ -150,12 +158,24 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Sid      = "CloudWatchLogsManagement"
         Effect   = "Allow"
         Action   = ["logs:CreateLogGroup", "logs:DescribeLogGroups", "logs:PutRetentionPolicy", "logs:DeleteLogGroup", "logs:TagResource"]
-        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend*"
+        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend*:*"
+      },
+      {
+        Sid      = "CloudWatchLogsDescribe"
+        Effect   = "Allow"
+        Action   = ["logs:DescribeLogGroups"]
+        Resource = "*"
+      },
+      {
+        Sid      = "CloudWatchLogsTags"
+        Effect   = "Allow"
+        Action   = ["logs:ListTagsForResource"]
+        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend"
       },
       {
         Sid      = "CloudWatchAlarmsManagement"
         Effect   = "Allow"
-        Action   = ["cloudwatch:PutMetricAlarm", "cloudwatch:DescribeAlarms", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource"]
+        Action   = ["cloudwatch:PutMetricAlarm", "cloudwatch:DescribeAlarms", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:ListTagsForResource"]
         Resource = "arn:aws:cloudwatch:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:alarm:aws-demo-backend-*"
       },
       {
@@ -171,6 +191,20 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Resource = [
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-demo-lambda-role",
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/aws-demo-lambda-dynamodb-policy"
+        ]
+      },
+      {
+        Sid    = "IamOidcAndGithubActionsRoleManagement"
+        Effect = "Allow"
+        Action = [
+          "iam:GetOpenIDConnectProvider", "iam:CreateOpenIDConnectProvider", "iam:UpdateOpenIDConnectProviderThumbprint",
+          "iam:DeleteOpenIDConnectProvider", "iam:TagOpenIDConnectProvider", "iam:ListOpenIDConnectProviderTags",
+          "iam:GetRole", "iam:UpdateAssumeRolePolicy", "iam:GetRolePolicy", "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy", "iam:ListRolePolicies", "iam:TagRole", "iam:ListAttachedRolePolicies"
+        ]
+        Resource = [
+          aws_iam_openid_connect_provider.github_actions.arn,
+          aws_iam_role.github_actions.arn
         ]
       }
     ]
