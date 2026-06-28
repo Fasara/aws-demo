@@ -97,7 +97,8 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
           "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketPolicy", "s3:PutBucketPolicy",
           "s3:DeleteBucketPolicy", "s3:GetBucketPublicAccessBlock", "s3:PutBucketPublicAccessBlock",
           "s3:GetBucketTagging", "s3:PutBucketTagging", "s3:GetBucketVersioning",
-          "s3:GetBucketAcl", "s3:GetEncryptionConfiguration", "s3:GetBucketLocation"
+          "s3:GetBucketAcl", "s3:GetEncryptionConfiguration", "s3:GetBucketLocation", 
+          "s3:GetBucketCORS"
         ]
         Resource = aws_s3_bucket.frontend.arn
       },
@@ -119,7 +120,8 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Action = [
           "lambda:CreateFunction", "lambda:GetFunction", "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration", "lambda:DeleteFunction", "lambda:AddPermission",
-          "lambda:RemovePermission", "lambda:GetPolicy", "lambda:TagResource", "lambda:ListVersionsByFunction"
+          "lambda:RemovePermission", "lambda:GetPolicy", "lambda:TagResource", "lambda:ListVersionsByFunction",
+          "lambda:GetFunctionCodeSigningConfig"
         ]
         Resource = aws_lambda_function.backend.arn
       },
@@ -154,12 +156,12 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Sid      = "CloudWatchLogsManagement"
         Effect   = "Allow"
         Action   = ["logs:CreateLogGroup", "logs:DescribeLogGroups", "logs:PutRetentionPolicy", "logs:DeleteLogGroup", "logs:TagResource"]
-        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend*"
+        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend*:*"
       },
       {
         Sid      = "CloudWatchAlarmsManagement"
         Effect   = "Allow"
-        Action   = ["cloudwatch:PutMetricAlarm", "cloudwatch:DescribeAlarms", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource"]
+        Action   = ["cloudwatch:PutMetricAlarm", "cloudwatch:DescribeAlarms", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:ListTagsForResource"]
         Resource = "arn:aws:cloudwatch:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:alarm:aws-demo-backend-*"
       },
       {
@@ -184,7 +186,7 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
           "iam:GetOpenIDConnectProvider", "iam:CreateOpenIDConnectProvider", "iam:UpdateOpenIDConnectProviderThumbprint",
           "iam:DeleteOpenIDConnectProvider", "iam:TagOpenIDConnectProvider", "iam:ListOpenIDConnectProviderTags",
           "iam:GetRole", "iam:UpdateAssumeRolePolicy", "iam:GetRolePolicy", "iam:PutRolePolicy",
-          "iam:DeleteRolePolicy", "iam:ListRolePolicies", "iam:TagRole"
+          "iam:DeleteRolePolicy", "iam:ListRolePolicies", "iam:TagRole", "iam:ListAttachedRolePolicies"
         ]
         Resource = [
           aws_iam_openid_connect_provider.github_actions.arn,
