@@ -167,6 +167,12 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Resource = "*"
       },
       {
+        Sid      = "CloudWatchLogsTags"
+        Effect   = "Allow"
+        Action   = ["logs:ListTagsForResource"]
+        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend"
+      },
+      {
         Sid      = "CloudWatchAlarmsManagement"
         Effect   = "Allow"
         Action   = ["cloudwatch:PutMetricAlarm", "cloudwatch:DescribeAlarms", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:ListTagsForResource"]
