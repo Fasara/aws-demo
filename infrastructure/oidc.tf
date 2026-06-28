@@ -98,7 +98,7 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
           "s3:DeleteBucketPolicy", "s3:GetBucketPublicAccessBlock", "s3:PutBucketPublicAccessBlock",
           "s3:GetBucketTagging", "s3:PutBucketTagging", "s3:GetBucketVersioning",
           "s3:GetBucketAcl", "s3:GetEncryptionConfiguration", "s3:GetBucketLocation", 
-          "s3:GetBucketCORS"
+          "s3:GetBucketCORS", "s3:GetBucketWebsite"
         ]
         Resource = aws_s3_bucket.frontend.arn
       },
@@ -157,6 +157,12 @@ resource "aws_iam_role_policy" "github_actions_terraform" {
         Effect   = "Allow"
         Action   = ["logs:CreateLogGroup", "logs:DescribeLogGroups", "logs:PutRetentionPolicy", "logs:DeleteLogGroup", "logs:TagResource"]
         Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/aws-demo-backend*:*"
+      },
+      {
+        Sid      = "CloudWatchLogsDescribe"
+        Effect   = "Allow"
+        Action   = ["logs:DescribeLogGroups"]
+        Resource = "*"
       },
       {
         Sid      = "CloudWatchAlarmsManagement"
