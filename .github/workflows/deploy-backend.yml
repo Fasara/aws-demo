@@ -1,0 +1,53 @@
+name: Deploy Backend
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: backend
+
+      - name: Build backend
+        run: yarn build
+        working-directory: backend
+
+      - name: Prune to production dependencies
+        run: yarn install --frozen-lockfile --production --ignore-scripts
+        working-directory: backend
+
+      - name: Package Lambda artifact
+        run: zip -rq lambda.zip dist/ node_modules/
+        working-directory: backend
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Update Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name aws-demo-backend \
+            --zip-file fileb://lambda.zip
+        working-directory: backend
